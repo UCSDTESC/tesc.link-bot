@@ -1,0 +1,28 @@
+{
+  "name": "tesc.link-bot",
+  "version": "1.0.0",
+  "description": "A SlackBot to interact with tesc.link through the Rebrandly API ",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx ts-node --files -P ./tsconfig.json -r tsconfig-paths/register ./bot/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Subhankar Panda",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/web-api": "^5.8.0",
+    "@types/express": "^4.17.2",
+    "@types/node-fetch": "^2.5.7",
+    "@types/tokenizr": "^1.5.1",
+    "@types/tsscmp": "^1.0.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.0",
+    "tokenizr": "^1.5.7",
+    "ts-node": "^8.6.2",
+    "tsconfig-paths": "^3.9.0",
+    "tsscmp": "^1.0.6",
+    "typescript": "^3.8.2",
+    "url-regex": "^5.0.0"
+  }
+}
