@@ -35,10 +35,12 @@ app.post('/link', isVerified, async (req: express.Request, res) => {
       "text": `
         *Interact with tesc.link*
 
-        Supported Actions - \n
-        1) *Create* - \`/link create <your_short_link> <your_long_link>\`
-        2) *Update* - \`/link update <your_short_link> <your_new_long_link>\`
-        3) *Create* - \`/link delete <your_short_link>\`
+Supported Actions - \n
+1) 📝 *Create* - \`/link create <your_short_link> <your_long_link>\`
+
+2) 💻 *Update* - \`/link update <your_short_link> <your_new_long_link>\`
+
+3) 🗑️ *Delete* - \`/link delete <your_short_link>\`
 
       `,
     }
@@ -57,7 +59,7 @@ app.post('/link', isVerified, async (req: express.Request, res) => {
 
   try {
     switch(op) {
-      case Operations.Create:
+      case Operations.Create: {
         const response = await createShortLink(args[0], args[1]);
         await fetch(body.responseURL, {
           method: 'POST',
@@ -69,17 +71,47 @@ app.post('/link', isVerified, async (req: express.Request, res) => {
           })
         });
         break;
-      case Operations.Delete:
-        deleteShortLink();
+      }
+      case Operations.Delete:{
+        const response = await deleteShortLink(args[0]);
+        await fetch(body.responseURL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            text: `Deleted http://www.${response.shortUrl} successfully.`
+          })
+        });
         break;
-      case Operations.Update:
-        updateShortLink();
+      }
+      case Operations.Update: {
+        const response = await updateShortLink(args[0], args[1]);
+        await fetch(body.responseURL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            text: `Updated http://www.${response.shortUrl} successfully.`
+          })
+        });
         break;
-
+      }
     }
   } catch(e) {
     console.error(e);
-    throw e;
+    await fetch(body.responseURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        in_channel: body.channelID,
+        text: `❎ Operation ${op} failed: ${e.message}`,
+        response_type: "ephemeral",
+      })
+  }); 
   }
 
   res.status(200).send()
