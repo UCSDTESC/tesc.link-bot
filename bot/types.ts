@@ -15,5 +15,7 @@ export type SlackCommandResponse = {
 export enum Operations {
   Create = 'create',
   Update = 'update',
-  Delete = 'delete'
+  Delete = 'delete',
+  Help = 'help',
+  QR = 'qr'
 }

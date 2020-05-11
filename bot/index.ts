@@ -25,15 +25,21 @@ const rawBodyBuffer = (req: express.Request, res: express.Response, buf, encodin
 app.use(bodyParser.urlencoded({ verify: rawBodyBuffer, extended: true }));
 app.use(bodyParser.json({ verify: rawBodyBuffer }));
 
+async function respondToSlack(url: string, message: object) {
+  await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(message)
+});
+}
+
 app.post('/link', isVerified, async (req: express.Request, res) => {
   const body = Adapters.CommandResponse(req.body);
-  
-  if (!body.text) {
-    //TODO: add some emojis, make formatting better here.
-    //TODO: Stretch: Interactive bot with buttons perhaps?
-    var message = {
-      "text": `
-        *Interact with tesc.link*
+  var helpMessage = {
+    "text": `
+      *Interact with tesc.link*
 
 Supported Actions - \n
 1) 📝 *Create* - \`/link create <your_short_link> <your_long_link>\`
@@ -42,76 +48,63 @@ Supported Actions - \n
 
 3) 🗑️ *Delete* - \`/link delete <your_short_link>\`
 
-      `,
-    }
+4) #️⃣ *QR* = \`/link qr <your_short_link>\`
 
-    await fetch(body.responseURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(message)
-    });
+5) 💁‍♂️ *Help = \`/link help\`
+    `,
+  }
+  if (!body.text) {
+    //TODO: add some emojis, make formatting better here.
+    //TODO: Stretch: Interactive bot with buttons perhaps?
+
+    await respondToSlack(body.responseURL, helpMessage);
   }
 
   // Replace all multiple whitespaces to a single space, and then split.
-  const [op, ...args] = body.text.replace(/\s{2,}/g,' ').split(' ');
+  const [op, ...args] = body.text.replace(/\s{2,}/g,' ').toLowerCase().split(' ');
 
   try {
     switch(op) {
       case Operations.Create: {
         const response = await createShortLink(args[0], args[1]);
-        await fetch(body.responseURL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            text: `Created New Shortlink at http://www.${response.shortUrl} for ${response.destination}`
-          })
+        await respondToSlack(body.responseURL, {
+          text: `Created New Shortlink at http://www.${response.shortUrl} for ${response.destination}`
         });
         break;
       }
       case Operations.Delete:{
         const response = await deleteShortLink(args[0]);
-        await fetch(body.responseURL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
+        await respondToSlack(body.responseURL, {
             text: `Deleted http://www.${response.shortUrl} successfully.`
-          })
         });
         break;
       }
       case Operations.Update: {
         const response = await updateShortLink(args[0], args[1]);
-        await fetch(body.responseURL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            text: `Updated http://www.${response.shortUrl} successfully.`
-          })
+        await respondToSlack(body.responseURL, {
+          text: `Updated http://www.${response.shortUrl} successfully.`
         });
         break;
       }
+      case Operations.QR: {
+        const qrUrl = 'https://qr.rebrandly.com/v1/qrcode?' + +new URLSearchParams({
+          'shortUrl': `https://tesc.link/${args[0]}`
+        });
+        await respondToSlack(body.responseURL, {
+          text: `Your shortlink QR Code -> ${qrUrl}`
+        })
+      }
+      case Operations.Help:
+      default:
+        await respondToSlack(body.responseURL, helpMessage);
     }
   } catch(e) {
     console.error(e);
-    await fetch(body.responseURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        in_channel: body.channelID,
-        text: `❎ Operation ${op} failed: ${e.message}`,
-        response_type: "ephemeral",
-      })
-  }); 
+    await respondToSlack(body.responseURL, {
+      in_channel: body.channelID,
+      text: `❎ Operation ${op} failed: ${e.message}`,
+      response_type: "ephemeral",
+    })
   }
 
   res.status(200).send()
