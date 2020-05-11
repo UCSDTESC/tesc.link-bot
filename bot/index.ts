@@ -87,6 +87,9 @@ Supported Actions - \n
         break;
       }
       case Operations.QR: {
+
+        if (!args[0]) throw Error('No SHortlink Passed In');
+
         const qrUrl = 'https://qr.rebrandly.com/v1/qrcode?' + (new URLSearchParams({
           'shortUrl': `https://tesc.link/${args[0]}`
         }).toString());
