@@ -50,14 +50,14 @@ Supported Actions - \n
 
 4) #️⃣ *QR* = \`/link qr <your_short_link>\`
 
-5) 💁‍♂️ *Help = \`/link help\`
+5) 💁‍♂️ *Help* = \`/link help\`
     `,
   }
   if (!body.text) {
     //TODO: add some emojis, make formatting better here.
     //TODO: Stretch: Interactive bot with buttons perhaps?
 
-    await respondToSlack(body.responseURL, helpMessage);
+    return await respondToSlack(body.responseURL, helpMessage);
   }
 
   // Replace all multiple whitespaces to a single space, and then split.
@@ -87,12 +87,13 @@ Supported Actions - \n
         break;
       }
       case Operations.QR: {
-        const qrUrl = 'https://qr.rebrandly.com/v1/qrcode?' + +new URLSearchParams({
+        const qrUrl = 'https://qr.rebrandly.com/v1/qrcode?' + (new URLSearchParams({
           'shortUrl': `https://tesc.link/${args[0]}`
-        });
+        }).toString());
         await respondToSlack(body.responseURL, {
           text: `Your shortlink QR Code -> ${qrUrl}`
-        })
+        });
+        break;
       }
       case Operations.Help:
       default:

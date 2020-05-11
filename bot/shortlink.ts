@@ -87,10 +87,10 @@ export async function deleteShortLink(shortLinkSlug: string) {
 };
 
 async function getShortLinkBySlug(shortLinkSlug: string) {
-  const res = await fetch(`${API_ROOT}/links?` + + new URLSearchParams({
+  const res = await fetch(`${API_ROOT}/links?` + new URLSearchParams({
       'slashtag': shortLinkSlug,
       'domain[fullName]': 'tesc.link',
-    }), {
+    }).toString(), {
     method: 'GET',
     headers: {
       "Content-Type": "application/json",
