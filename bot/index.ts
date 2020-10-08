@@ -61,10 +61,10 @@ Supported Actions - \n
   }
 
   // Replace all multiple whitespaces to a single space, and then split.
-  const [op, ...args] = body.text.replace(/\s{2,}/g,' ').toLowerCase().split(' ');
+  const [op, ...args] = body.text.replace(/\s{2,}/g,' ').split(' ');
 
   try {
-    switch(op) {
+    switch(op.toLowerCase()) {
       case Operations.Create: {
         const response = await createShortLink(args[0], args[1]);
         await respondToSlack(body.responseURL, {
@@ -88,7 +88,7 @@ Supported Actions - \n
       }
       case Operations.QR: {
 
-        if (!args[0]) throw Error('No SHortlink Passed In');
+        if (!args[0]) throw Error('No Shortlink Passed In');
 
         const qrUrl = 'https://qr.rebrandly.com/v1/qrcode?' + (new URLSearchParams({
           'shortUrl': `https://tesc.link/${args[0]}`
