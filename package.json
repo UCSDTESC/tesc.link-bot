@@ -17,7 +17,7 @@
     "@types/tsscmp": "^1.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^3.1.1",
     "tokenizr": "^1.5.7",
     "ts-node": "^8.6.2",
     "tsconfig-paths": "^3.9.0",
