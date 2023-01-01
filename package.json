@@ -20,7 +20,7 @@
     "node-fetch": "^2.6.0",
     "tokenizr": "^1.5.7",
     "ts-node": "^8.6.2",
-    "tsconfig-paths": "^3.9.0",
+    "tsconfig-paths": "^3.10.1",
     "tsscmp": "^1.0.6",
     "typescript": "^3.8.2",
     "url-regex": "^5.0.0"
